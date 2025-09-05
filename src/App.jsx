@@ -167,114 +167,16 @@ function LoginScreen({ onLogin }) {
             marginBottom: "40px",
           }}
         >
-          {/* Logo 1 - Lideranças Empáticas - EXACT COPY */}
-          <div style={{ width: "140px", height: "140px" }}>
-            <svg width="140" height="140" viewBox="0 0 140 140">
-              {/* Outer dashed ring */}
-              <circle
-                cx="70"
-                cy="70"
-                r="65"
-                fill="none"
-                stroke="#006400"
-                strokeWidth="1.5"
-                strokeDasharray="2,2"
-              />
-              
-              {/* Inner solid green circle */}
-              <circle
-                cx="70"
-                cy="70"
-                r="45"
-                fill="#006400"
-              />
-              
-              {/* LIDERANÇAS EMPÁTICAS text on outer ring */}
-              <text
-                x="70"
-                y="18"
-                textAnchor="middle"
-                fill="#006400"
-                fontSize="6"
-                fontWeight="700"
-                letterSpacing="1"
-              >
-                LIDERANÇAS EMPÁTICAS
-              </text>
-              
-              {/* Three people icon - exact from image */}
-              <g transform="translate(70, 60)">
-                {/* Left person */}
-                <circle cx="-12" cy="-3" r="6" fill="white" />
-                <rect x="-15" y="3" width="6" height="10" rx="3" fill="white" />
-                
-                {/* Center person (larger) */}
-                <circle cx="0" cy="-5" r="7" fill="white" />
-                <rect x="-4" y="2" width="8" height="12" rx="4" fill="white" />
-                
-                {/* Right person */}
-                <circle cx="12" cy="-3" r="6" fill="white" />
-                <rect x="9" y="3" width="6" height="10" rx="3" fill="white" />
-              </g>
-              
-              {/* FECAP text */}
-              <text
-                x="70"
-                y="95"
-                textAnchor="middle"
-                fill="white"
-                fontSize="8"
-                fontWeight="700"
-              >
-                FECAP
-              </text>
-            </svg>
-          </div>
-
-          {/* Logo 2 - Profile with Wing - EXACT COPY */}
-          <div style={{ width: "140px", height: "140px" }}>
-            <svg width="140" height="140" viewBox="0 0 140 140">
-              {/* Green circle */}
-              <circle
-                cx="70"
-                cy="70"
-                r="45"
-                fill="#006400"
-              />
-              
-              {/* Profile with wing - exact from image */}
-              <g transform="translate(70, 50)">
-                {/* Head */}
-                <circle cx="0" cy="0" r="16" fill="white" />
-                
-                {/* Wing/thought bubble on left */}
-                <ellipse cx="-22" cy="-3" rx="6" ry="10" fill="white" />
-                
-                {/* Hair/helmet with curls */}
-                <path
-                  d="M-12, -12 Q-8, -18 -4, -12 Q0, -16 4, -12 Q8, -18 12, -12"
-                  fill="white"
-                />
-                
-                {/* Face features - exact from image */}
-                <circle cx="-4" cy="-2" r="1" fill="#006400" />
-                <circle cx="4" cy="-2" r="1" fill="#006400" />
-                <path d="M-2, 4 Q0, 6 2, 4" stroke="#006400" strokeWidth="1" fill="none" />
-              </g>
-              
-              {/* FECAP text */}
-              <text
-                x="70"
-                y="95"
-                textAnchor="middle"
-                fill="white"
-                fontSize="8"
-                fontWeight="700"
-              >
-                FECAP
-              </text>
-            </svg>
-          </div>
+          <img
+            src="/logos/liderancas-empaticas.png"
+            alt="Lideranças Empáticas"
+            style={{ width: 140, height: 140, objectFit: "contain", display: "block" }}
+          />
+          <img
+            src="/logos/fecap.png"
+            alt="FECAP"
+            style={{ width: 140, height: 140, objectFit: "contain", display: "block" }}
+          />
         </motion.div>
 
         {/* Title */}
