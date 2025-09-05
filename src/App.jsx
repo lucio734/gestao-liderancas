@@ -178,45 +178,52 @@ function LoginScreen({ onLogin }) {
                 fill="none"
                 stroke="#006400"
                 strokeWidth="2"
-                strokeDasharray="4,4"
+                strokeDasharray="3,3"
               />
               
               {/* Inner green circle */}
               <circle
                 cx="70"
                 cy="70"
-                r="55"
+                r="50"
                 fill="#006400"
               />
               
-              {/* LIDERANÇAS EMPÁTICAS text on outer ring */}
+              {/* LIDERANÇAS EMPÁTICAS text on outer ring - curved */}
               <text
                 x="70"
-                y="25"
+                y="20"
                 textAnchor="middle"
                 fill="#006400"
-                fontSize="8"
+                fontSize="7"
                 fontWeight="700"
-                letterSpacing="0.5"
+                letterSpacing="0.8"
               >
                 LIDERANÇAS EMPÁTICAS
               </text>
               
-              {/* Three people icon */}
-              <g transform="translate(70, 60)">
-                <circle cx="-12" cy="0" r="6" fill="white" />
-                <circle cx="0" cy="0" r="7" fill="white" />
-                <circle cx="12" cy="0" r="6" fill="white" />
-                <rect x="-18" y="6" width="36" height="12" rx="6" fill="white" />
+              {/* Three people icon - more accurate */}
+              <g transform="translate(70, 55)">
+                {/* Person 1 (left) */}
+                <circle cx="-15" cy="-5" r="8" fill="white" />
+                <rect x="-20" y="3" width="10" height="15" rx="5" fill="white" />
+                
+                {/* Person 2 (center) */}
+                <circle cx="0" cy="-8" r="9" fill="white" />
+                <rect x="-6" y="1" width="12" height="18" rx="6" fill="white" />
+                
+                {/* Person 3 (right) */}
+                <circle cx="15" cy="-5" r="8" fill="white" />
+                <rect x="10" y="3" width="10" height="15" rx="5" fill="white" />
               </g>
               
               {/* FECAP text */}
               <text
                 x="70"
-                y="95"
+                y="100"
                 textAnchor="middle"
                 fill="white"
-                fontSize="10"
+                fontSize="9"
                 fontWeight="700"
               >
                 FECAP
@@ -231,40 +238,37 @@ function LoginScreen({ onLogin }) {
               <circle
                 cx="70"
                 cy="70"
-                r="55"
+                r="50"
                 fill="#006400"
               />
               
               {/* Profile with wing */}
               <g transform="translate(70, 50)">
                 {/* Head */}
-                <circle cx="0" cy="0" r="15" fill="white" />
+                <circle cx="0" cy="0" r="18" fill="white" />
                 
-                {/* Wing */}
-                <path
-                  d="M-20, -5 Q-30, 0 -20, 5 Q-15, 0 -20, -5"
-                  fill="white"
-                />
+                {/* Wing/thought bubble */}
+                <ellipse cx="-25" cy="-5" rx="8" ry="12" fill="white" />
                 
                 {/* Hair/Helmet with curls */}
                 <path
-                  d="M-12, -12 Q-8, -18 -4, -12 Q0, -16 4, -12 Q8, -18 12, -12"
+                  d="M-15, -15 Q-10, -22 -5, -15 Q0, -20 5, -15 Q10, -22 15, -15"
                   fill="white"
                 />
                 
                 {/* Face features */}
-                <circle cx="-5" cy="-2" r="1" fill="#006400" />
-                <circle cx="5" cy="-2" r="1" fill="#006400" />
-                <path d="M-3, 3 Q0, 6 3, 3" stroke="#006400" strokeWidth="1" fill="none" />
+                <circle cx="-6" cy="-3" r="1.5" fill="#006400" />
+                <circle cx="6" cy="-3" r="1.5" fill="#006400" />
+                <path d="M-4, 5 Q0, 8 4, 5" stroke="#006400" strokeWidth="1.5" fill="none" />
               </g>
               
               {/* FECAP text */}
               <text
                 x="70"
-                y="95"
+                y="100"
                 textAnchor="middle"
                 fill="white"
-                fontSize="10"
+                fontSize="9"
                 fontWeight="700"
               >
                 FECAP
