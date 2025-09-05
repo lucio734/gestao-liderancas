@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -75,26 +75,6 @@ export default function App() {
 
 // === NAVBAR ===
 function NavBar({ user, onLogout }) {
-  const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
-
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      } else if (document.exitFullscreen) {
-        await document.exitFullscreen();
-      }
-    } catch (error) {
-      // Silent fail; some browsers may block or throw
-    }
-  };
-
   return (
     <motion.div
       initial={{ y: -50, opacity: 0 }}
@@ -130,22 +110,6 @@ function NavBar({ user, onLogout }) {
             cursor: "pointer",
             fontWeight: "700",
           }}
-          onClick={toggleFullscreen}
-        >
-          {isFullscreen ? "Sair tela cheia" : "Tela cheia"}
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          style={{
-            backgroundColor: "#ffffff",
-            color: "#006400",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "700",
-          }}
           onClick={onLogout}
         >
           Sair
@@ -160,25 +124,6 @@ function LoginScreen({ onLogin }) {
   const [role, setRole] = useState("aluno");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
-
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      } else if (document.exitFullscreen) {
-        await document.exitFullscreen();
-      }
-    } catch (error) {
-      // Silent fail
-    }
-  };
 
   return (
     <motion.div
@@ -187,6 +132,7 @@ function LoginScreen({ onLogin }) {
       transition={{ duration: 0.6 }}
       style={{
         minHeight: "100vh",
+        width: "100%",
         backgroundColor: "#ffffff",
         color: "#006400",
         fontFamily: "'Montserrat', sans-serif",
@@ -202,22 +148,6 @@ function LoginScreen({ onLogin }) {
       <motion.h1 initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
         Plataforma de Gestão
       </motion.h1>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.97 }}
-        style={{
-          backgroundColor: "#006400",
-          color: "#ffffff",
-          border: "none",
-          padding: "8px 16px",
-          borderRadius: "10px",
-          cursor: "pointer",
-          fontWeight: "700",
-        }}
-        onClick={toggleFullscreen}
-      >
-        {isFullscreen ? "Sair tela cheia" : "Tela cheia"}
-      </motion.button>
       <select value={role} onChange={(e) => setRole(e.target.value)}>
         <option value="aluno">Aluno</option>
         <option value="mentor">Mentor</option>
