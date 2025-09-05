@@ -64,7 +64,7 @@ export default function App() {
   if (!user) return <LoginScreen onLogin={handleLogin} />;
 
   return (
-    <div>
+    <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
       <NavBar user={user} onLogout={handleLogout} />
       {user.role === "aluno" && <AlunoDashboard user={user} teams={teams} onRegister={registerActivity} />}
       {user.role === "mentor" && <MentorDashboard user={user} teams={teams} pending={pending} updateActivityStatus={updateActivityStatus} />}
@@ -82,9 +82,9 @@ function NavBar({ user, onLogout }) {
       transition={{ duration: 0.6 }}
       style={{
         width: "100%",
-        backgroundColor: "#006400",
+        background: "linear-gradient(90deg, #0f5132, #198754)",
         color: "#ffffff",
-        padding: "12px 20px",
+        padding: "14px 24px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -93,20 +93,21 @@ function NavBar({ user, onLogout }) {
         position: "sticky",
         top: 0,
         zIndex: 1000,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
       }}
     >
       <span>🌱 Gestão de Lideranças</span>
-      <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-        <span>{user.role.toUpperCase()} - {user.name}</span>
+      <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        <span style={{ opacity: 0.95 }}>{user.role.toUpperCase()} - {user.name}</span>
         <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
           style={{
             backgroundColor: "#ffffff",
-            color: "#006400",
+            color: "#0f5132",
             border: "none",
             padding: "8px 16px",
-            borderRadius: "8px",
+            borderRadius: "10px",
             cursor: "pointer",
             fontWeight: "700",
           }}
@@ -304,28 +305,41 @@ function LoginScreen({ onLogin }) {
 function AlunoDashboard({ user, teams, onRegister }) {
   const team = teams.find((t) => t.id === user.teamId);
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "20px", textAlign: "center" }}>
-      <h2>{team.name} - {user.name}</h2>
-      <motion.div whileHover={{ scale: 1.02 }} style={{ margin: "10px 0", padding: "10px", border: "1px solid #006400" }}>
-        Total arrecadado: R$ {team.total}
-      </motion.div>
-      <RegisterForm onSubmit={onRegister} />
-      <h3>Histórico</h3>
-      <table border="1" cellPadding="6" width="100%">
-        <thead>
-          <tr><th>Data</th><th>Atividade</th><th>Valor</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-          {team.activities.map((a, i) => (
-            <motion.tr key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <td>{a.data}</td>
-              <td>{a.nome}</td>
-              <td>{a.tipo === "alimentos" ? `${a.valor} kg` : `R$ ${a.valor}`}</td>
-              <td>{a.status}</td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ maxWidth: 1200, margin: "0 auto", padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+      <SectionCard>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ margin: 0, color: "#0f5132" }}>{team.name} - {user.name}</h2>
+          <div style={{ color: "#0f5132", fontWeight: 800 }}>Total: R$ {team.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
+        </div>
+      </SectionCard>
+
+      <SectionCard>
+        <RegisterForm onSubmit={onRegister} />
+      </SectionCard>
+
+      <SectionCard>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f5132" }}>Histórico</div>
+        <table width="100%" style={{ borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "#495057" }}>
+              <th style={{ padding: 8 }}>Data</th>
+              <th style={{ padding: 8 }}>Atividade</th>
+              <th style={{ padding: 8 }}>Valor</th>
+              <th style={{ padding: 8 }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {team.activities.map((a, i) => (
+              <tr key={i} style={{ borderTop: "1px solid #e9ecef" }}>
+                <td style={{ padding: 8 }}>{a.data}</td>
+                <td style={{ padding: 8 }}>{a.nome}</td>
+                <td style={{ padding: 8 }}>{a.tipo === "alimentos" ? `${a.valor} kg` : `R$ ${a.valor}`}</td>
+                <td style={{ padding: 8 }}>{a.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </SectionCard>
     </motion.div>
   );
 }
@@ -334,30 +348,36 @@ function AlunoDashboard({ user, teams, onRegister }) {
 function MentorDashboard({ user, teams, pending, updateActivityStatus }) {
   const myTeams = teams.filter((t) => user.teamIds.includes(t.id));
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "20px" }}>
-      <h2>Mentor {user.name}</h2>
-      <h3>Atualizações Pendentes</h3>
-      {pending.length === 0 && <p>Nenhuma pendente.</p>}
-      {pending.map((p, i) => (
-        <motion.div
-          key={i}
-          whileHover={{ scale: 1.02 }}
-          style={{ border: "1px solid #ccc", margin: "5px 0", padding: "8px" }}
-        >
-          <p><b>{p.teamName}</b> - {p.nome} ({p.data})</p>
-          <button onClick={() => updateActivityStatus(p.teamId, 0, "Aprovada")}>Aprovar</button>
-          <button onClick={() => updateActivityStatus(p.teamId, 0, "Rejeitada", "Dados insuficientes")}>Rejeitar</button>
-        </motion.div>
-      ))}
-      <h3>Visão Geral</h3>
-      <table border="1" cellPadding="6" width="100%">
-        <thead><tr><th>Equipe</th><th>Total</th></tr></thead>
-        <tbody>
-          {myTeams.map((t) => (
-            <tr key={t.id}><td>{t.name}</td><td>R$ {t.total}</td></tr>
-          ))}
-        </tbody>
-      </table>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ maxWidth: 1200, margin: "0 auto", padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+      <SectionCard>
+        <h2 style={{ margin: 0, color: "#0f5132" }}>Mentor {user.name}</h2>
+      </SectionCard>
+
+      <SectionCard>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f5132" }}>Atualizações Pendentes</div>
+        {pending.length === 0 && <p style={{ margin: 0, color: "#495057" }}>Nenhuma pendente.</p>}
+        {pending.map((p, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 12, border: "1px solid #e9ecef", borderRadius: 8, marginBottom: 8 }}>
+            <div><b>{p.teamName}</b> - {p.nome} ({p.data})</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button style={smallBtn} onClick={() => updateActivityStatus(p.teamId, 0, "Aprovada")}>Aprovar</button>
+              <button style={{ ...smallBtn, background: "#dc3545" }} onClick={() => updateActivityStatus(p.teamId, 0, "Rejeitada", "Dados insuficientes")}>Rejeitar</button>
+            </div>
+          </div>
+        ))}
+      </SectionCard>
+
+      <SectionCard>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f5132" }}>Visão Geral</div>
+        <table width="100%" style={{ borderCollapse: "collapse" }}>
+          <thead><tr style={{ textAlign: "left", color: "#495057" }}><th style={{ padding: 8 }}>Equipe</th><th style={{ padding: 8 }}>Total</th></tr></thead>
+          <tbody>
+            {myTeams.map((t) => (
+              <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}><td style={{ padding: 8 }}>{t.name}</td><td style={{ padding: 8 }}>R$ {t.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </SectionCard>
     </motion.div>
   );
 }
@@ -513,3 +533,21 @@ const btnStyle = {
   cursor: "pointer",
   fontWeight: "700",
 };
+
+const smallBtn = {
+  background: "#198754",
+  color: "#fff",
+  border: "none",
+  padding: "8px 12px",
+  borderRadius: 8,
+  cursor: "pointer",
+  fontWeight: 700,
+};
+
+function SectionCard({ children }) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.06)", padding: 16 }}>
+      {children}
+    </div>
+  );
+}
