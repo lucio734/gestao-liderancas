@@ -163,90 +163,113 @@ function LoginScreen({ onLogin }) {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            gap: "30px",
+            gap: "40px",
             marginBottom: "40px",
           }}
         >
           {/* Logo 1 - Lideranças Empáticas */}
-          <div style={{
-            width: "120px",
-            height: "120px",
-            borderRadius: "50%",
-            backgroundColor: "#006400",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            border: "3px solid #e8f5e8",
-          }}>
-            <div style={{
-              position: "absolute",
-              top: "-15px",
-              left: "-15px",
-              right: "-15px",
-              bottom: "-15px",
-              borderRadius: "50%",
-              border: "2px dashed #006400",
-              opacity: 0.3,
-            }} />
-            <div style={{
-              color: "#ffffff",
-              fontSize: "10px",
-              fontWeight: "700",
-              textAlign: "center",
-              lineHeight: "1.2",
-              position: "absolute",
-              top: "10px",
-              left: "10px",
-              right: "10px",
-            }}>
-              LIDERANÇAS EMPÁTICAS
-            </div>
-            <div style={{
-              color: "#ffffff",
-              fontSize: "24px",
-              marginTop: "20px",
-            }}>
-              👥
-            </div>
-            <div style={{
-              color: "#ffffff",
-              fontSize: "12px",
-              fontWeight: "700",
-              marginTop: "5px",
-            }}>
-              FECAP
-            </div>
+          <div style={{ width: "140px", height: "140px" }}>
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              {/* Outer ring with dashed border */}
+              <circle
+                cx="70"
+                cy="70"
+                r="68"
+                fill="none"
+                stroke="#006400"
+                strokeWidth="2"
+                strokeDasharray="4,4"
+              />
+              
+              {/* Inner green circle */}
+              <circle
+                cx="70"
+                cy="70"
+                r="55"
+                fill="#006400"
+              />
+              
+              {/* LIDERANÇAS EMPÁTICAS text on outer ring */}
+              <text
+                x="70"
+                y="25"
+                textAnchor="middle"
+                fill="#006400"
+                fontSize="8"
+                fontWeight="700"
+                letterSpacing="0.5"
+              >
+                LIDERANÇAS EMPÁTICAS
+              </text>
+              
+              {/* Three people icon */}
+              <g transform="translate(70, 60)">
+                <circle cx="-12" cy="0" r="6" fill="white" />
+                <circle cx="0" cy="0" r="7" fill="white" />
+                <circle cx="12" cy="0" r="6" fill="white" />
+                <rect x="-18" y="6" width="36" height="12" rx="6" fill="white" />
+              </g>
+              
+              {/* FECAP text */}
+              <text
+                x="70"
+                y="95"
+                textAnchor="middle"
+                fill="white"
+                fontSize="10"
+                fontWeight="700"
+              >
+                FECAP
+              </text>
+            </svg>
           </div>
 
           {/* Logo 2 - Profile with Wing */}
-          <div style={{
-            width: "120px",
-            height: "120px",
-            borderRadius: "50%",
-            backgroundColor: "#006400",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            border: "3px solid #e8f5e8",
-          }}>
-            <div style={{
-              color: "#ffffff",
-              fontSize: "40px",
-              marginBottom: "10px",
-            }}>
-              👤
-            </div>
-            <div style={{
-              color: "#ffffff",
-              fontSize: "12px",
-              fontWeight: "700",
-            }}>
-              FECAP
-            </div>
+          <div style={{ width: "140px", height: "140px" }}>
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              {/* Green circle */}
+              <circle
+                cx="70"
+                cy="70"
+                r="55"
+                fill="#006400"
+              />
+              
+              {/* Profile with wing */}
+              <g transform="translate(70, 50)">
+                {/* Head */}
+                <circle cx="0" cy="0" r="15" fill="white" />
+                
+                {/* Wing */}
+                <path
+                  d="M-20, -5 Q-30, 0 -20, 5 Q-15, 0 -20, -5"
+                  fill="white"
+                />
+                
+                {/* Hair/Helmet with curls */}
+                <path
+                  d="M-12, -12 Q-8, -18 -4, -12 Q0, -16 4, -12 Q8, -18 12, -12"
+                  fill="white"
+                />
+                
+                {/* Face features */}
+                <circle cx="-5" cy="-2" r="1" fill="#006400" />
+                <circle cx="5" cy="-2" r="1" fill="#006400" />
+                <path d="M-3, 3 Q0, 6 3, 3" stroke="#006400" strokeWidth="1" fill="none" />
+              </g>
+              
+              {/* FECAP text */}
+              <text
+                x="70"
+                y="95"
+                textAnchor="middle"
+                fill="white"
+                fontSize="10"
+                fontWeight="700"
+              >
+                FECAP
+              </text>
+            </svg>
           </div>
         </motion.div>
 
