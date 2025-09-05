@@ -173,7 +173,7 @@ function LoginScreen({ onLogin }) {
             style={{ width: 140, height: 140, objectFit: "contain", display: "block" }}
           />
           <img
-            src="/logos/fecap.png"
+            src="/logos/logo fecap.webp"
             alt="FECAP"
             style={{ width: 140, height: 140, objectFit: "contain", display: "block" }}
           />
