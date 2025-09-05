@@ -365,67 +365,112 @@ function MentorDashboard({ user, teams, pending, updateActivityStatus }) {
 // === DASHBOARD ADMIN
 function AdminDashboard({ teams, recent }) {
   const total = teams.reduce((acc, t) => acc + t.total, 0);
-  const COLORS = ["#006400", "#00a000", "#00c000", "#00e000"];
+  const COLORS = ["#006400", "#0E7A0D", "#1E9E1B", "#2ECF25", "#65DB6B"];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: "20px", textAlign: "center" }}>
-      <h2>Dashboard do Administrador</h2>
-      <motion.div style={{ display: "flex", gap: "12px", margin: "12px 0", justifyContent: "center" }}>
-        <motion.div whileHover={{ scale: 1.05 }} style={{ border: "1px solid #006400", padding: "8px" }}>
-          Total Arrecadado: R$ {total}
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.05 }} style={{ border: "1px solid #006400", padding: "8px" }}>
-          Equipes Ativas: {teams.length}
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.05 }} style={{ border: "1px solid #006400", padding: "8px" }}>
-          Atividades Registradas: {teams.reduce((acc, t) => acc + t.activities.length, 0)}
-        </motion.div>
-      </motion.div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      {/* Header */}
+      <div style={{
+        width: "100%",
+        background: "linear-gradient(90deg, #0f5132, #198754)",
+        color: "#fff",
+        borderRadius: "14px",
+        padding: "28px 24px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}>
+        <div>
+          <div style={{ fontSize: 34, fontWeight: 800 }}>Resultados das Últimas Edições</div>
+          <div style={{ opacity: 0.9 }}>Baixe os relatórios das últimas edições</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <img src="/logos/liderancas-empaticas.png" alt="Lideranças Empáticas" style={{ height: 64 }} />
+          <img src="/logos/logo fecap.webp" alt="FECAP" style={{ height: 42 }} />
+        </div>
+      </div>
 
-      <h3>Ranking de Equipes</h3>
-      <table border="1" cellPadding="6" width="100%">
-        <thead><tr><th>#</th><th>Equipe</th><th>Mentor</th><th>Total</th></tr></thead>
-        <tbody>
-          {teams.sort((a, b) => b.total - a.total).map((t, i) => (
-            <tr key={t.id}>
-              <td>{i + 1}</td><td>{t.name}</td><td>{t.mentor}</td><td>R$ {t.total}</td>
+      {/* KPI Row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+        <KpiCard title="Arrecadação Total em Kg" value={total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} selectorLabel="Edição" />
+        <KpiCard title="Arrecadação Média | Edição" value={(total / Math.max(teams.length, 1)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} selectorLabel="Semestre" />
+        <KpiCard title="Pessoas Atendidas | 6 Meses" value={(1300).toLocaleString("pt-BR")} selectorLabel="Selecionar período" rightLogo="/logos/logo fecap.webp" />
+      </div>
+
+      {/* Charts Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* Left: Pie */}
+        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.06)", padding: 16 }}>
+          <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f5132" }}>Distribuição por Equipe</div>
+          <div style={{ width: "100%", height: 300 }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={teams} dataKey="total" nameKey="name" outerRadius={120} label>
+                  {teams.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Right: Bar */}
+        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.06)", padding: 16 }}>
+          <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f5132" }}>Arrecadação Total</div>
+          <div style={{ width: "100%", height: 300 }}>
+            <ResponsiveContainer>
+              <BarChart data={teams}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="total" fill="#198754" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Table: Ranking */}
+      <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.06)", padding: 16 }}>
+        <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f5132" }}>Ranking de Equipes</div>
+        <table width="100%" style={{ borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "#495057" }}>
+              <th style={{ padding: 8 }}>#</th>
+              <th style={{ padding: 8 }}>Equipe</th>
+              <th style={{ padding: 8 }}>Mentor</th>
+              <th style={{ padding: 8 }}>Total</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <h3>Gráfico de Totais</h3>
-      <div style={{ width: "100%", height: 300 }}>
-        <ResponsiveContainer>
-          <BarChart data={teams}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="total" fill="#006400" />
-          </BarChart>
-        </ResponsiveContainer>
+          </thead>
+          <tbody>
+            {teams.slice().sort((a, b) => b.total - a.total).map((t, i) => (
+              <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}>
+                <td style={{ padding: 8 }}>{i + 1}</td>
+                <td style={{ padding: 8 }}>{t.name}</td>
+                <td style={{ padding: 8 }}>{t.mentor}</td>
+                <td style={{ padding: 8 }}>R$ {t.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      <h3>Distribuição por Equipe</h3>
-      <div style={{ width: "100%", height: 300 }}>
-        <ResponsiveContainer>
-          <PieChart>
-            <Pie data={teams} dataKey="total" nameKey="name" outerRadius={120} label>
-              {teams.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      <h3>Atividades Recentes</h3>
-      <ul>
-        {recent.map((r, i) => (
-          <li key={i}>{r.teamName} - {r.nome} ({r.tipo === "alimentos" ? `${r.valor} kg` : `R$ ${r.valor}`})</li>
-        ))}
-      </ul>
     </motion.div>
+  );
+}
+
+function KpiCard({ title, value, selectorLabel, rightLogo }) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.06)", padding: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ color: "#495057", fontSize: 14 }}>{title}</div>
+        <div style={{ color: "#0f5132", fontSize: 28, fontWeight: 800 }}>{value}</div>
+        <select style={{ border: "1px solid #e9ecef", borderRadius: 8, padding: "8px 10px", width: 180 }}>
+          <option>{selectorLabel}</option>
+        </select>
+      </div>
+      {rightLogo && <img src={rightLogo} alt="logo" style={{ height: 28 }} />}
+    </div>
   );
 }
 
