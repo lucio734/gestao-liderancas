@@ -1,26 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
-
-// === MOCK DE DADOS INICIAIS ===
-const mockTeams = [
-  { id: 1, name: "Equipe Alpha", mentor: "Carlos", total: 0, activities: [] },
-  { id: 2, name: "Equipe Beta", mentor: "Ana", total: 0, activities: [] },
-];
+import {
+  initializeDatabase,
+  getAllUsers,
+  getAllTeams,
+  getPendingActivities,
+  getRecentActivities,
+  authenticateUser,
+  createUser,
+  createActivity,
+  updateActivityStatus,
+  getTeamStats,
+  getGlobalStats
+} from "./database";
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [teams, setTeams] = useState(mockTeams);
+  const [teams, setTeams] = useState([]);
   const [pending, setPending] = useState([]);
   const [recent, setRecent] = useState([]);
+  const [showRegister, setShowRegister] = useState(false);
 
-  // === LOGIN FLEXÍVEL ===
-  const handleLogin = (role, name, password) => {
-    if (role === "aluno") setUser({ role, teamId: 1, name: name || "Aluno" });
-    if (role === "mentor") setUser({ role, name: name || "Mentor", teamIds: [1] });
-    if (role === "admin") setUser({ role, name: "Administrador" });
+  // === INICIALIZAR BANCO DE DADOS ===
+  useEffect(() => {
+    initializeDatabase();
+    loadData();
+  }, []);
+
+  const loadData = () => {
+    setTeams(getAllTeams());
+    setPending(getPendingActivities());
+    setRecent(getRecentActivities());
+  };
+
+  // === LOGIN COM BANCO DE DADOS ===
+  const handleLogin = (email, password) => {
+    const authenticatedUser = authenticateUser(email, password);
+    if (authenticatedUser) {
+      setUser(authenticatedUser);
+      loadData();
+    } else {
+      alert("Email ou senha incorretos!");
+    }
+  };
+
+  // === CADASTRO DE USUÁRIO ===
+  const handleRegister = (userData) => {
+    try {
+      const newUser = createUser(userData);
+      alert("Usuário cadastrado com sucesso!");
+      setShowRegister(false);
+      loadData();
+    } catch (error) {
+      alert("Erro ao cadastrar usuário: " + error.message);
+    }
   };
 
   // === LOGOUT ===
@@ -28,46 +64,75 @@ export default function App() {
 
   // === REGISTRO DE DOAÇÃO (Aluno) ===
   const registerActivity = (activity) => {
-    const updatedTeams = teams.map((team) => {
-      if (team.id === user.teamId) {
-        return {
-          ...team,
-          activities: [...team.activities, { ...activity, status: "Pendente" }],
-        };
+    try {
+      const team = teams.find(t => t.id === user.teamId);
+      if (!team) {
+        alert("Equipe não encontrada!");
+        return;
       }
-      return team;
-    });
-    setTeams(updatedTeams);
-    setPending([...pending, { ...activity, teamId: user.teamId, teamName: teams.find((t) => t.id === user.teamId).name }]);
+
+      const newActivity = createActivity({
+        ...activity,
+        teamId: user.teamId,
+        teamName: team.name,
+        userId: user.id
+      });
+
+      // Atualizar total da equipe se aprovada
+      if (newActivity.status === "Aprovada") {
+        const updatedTeams = teams.map(t => {
+          if (t.id === user.teamId) {
+            return { ...t, total: t.total + parseFloat(activity.valor) };
+          }
+          return t;
+        });
+        setTeams(updatedTeams);
+      }
+
+      loadData();
+      alert("Atividade registrada com sucesso!");
+    } catch (error) {
+      alert("Erro ao registrar atividade: " + error.message);
+    }
   };
 
   // === APROVAR OU REJEITAR (Mentor) ===
-  const updateActivityStatus = (teamId, index, status, motivo = null) => {
-    const updatedTeams = teams.map((team) => {
-      if (team.id === teamId) {
-        const newActivities = [...team.activities];
-        newActivities[index].status = status;
-        if (status === "Aprovada") {
-          team.total += parseFloat(newActivities[index].valor);
-          setRecent([{ ...newActivities[index], teamName: team.name }, ...recent]);
+  const handleUpdateActivityStatus = (activityId, status, motivo = null) => {
+    try {
+      const updatedActivity = updateActivityStatus(activityId, status, motivo);
+      
+      if (updatedActivity && status === "Aprovada") {
+        // Atualizar total da equipe
+        const team = teams.find(t => t.id === updatedActivity.teamId);
+        if (team) {
+          const updatedTeams = teams.map(t => {
+            if (t.id === updatedActivity.teamId) {
+              return { ...t, total: t.total + parseFloat(updatedActivity.valor) };
+            }
+            return t;
+          });
+          setTeams(updatedTeams);
         }
-        if (status === "Rejeitada") newActivities[index].motivo = motivo;
-        return { ...team, activities: newActivities };
       }
-      return team;
-    });
-    setTeams(updatedTeams);
-    setPending(pending.filter((p) => p.teamId !== teamId));
+
+      loadData();
+    } catch (error) {
+      alert("Erro ao atualizar atividade: " + error.message);
+    }
   };
 
   // === TELAS ===
-  if (!user) return <LoginScreen onLogin={handleLogin} />;
+  if (!user) {
+    return showRegister ? 
+      <RegisterScreen onRegister={handleRegister} onBackToLogin={() => setShowRegister(false)} /> :
+      <LoginScreen onLogin={handleLogin} onShowRegister={() => setShowRegister(true)} />;
+  }
 
   return (
     <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
       <NavBar user={user} onLogout={handleLogout} />
       {user.role === "aluno" && <AlunoDashboard user={user} teams={teams} onRegister={registerActivity} />}
-      {user.role === "mentor" && <MentorDashboard user={user} teams={teams} pending={pending} updateActivityStatus={updateActivityStatus} />}
+      {user.role === "mentor" && <MentorDashboard user={user} teams={teams} pending={pending} updateActivityStatus={handleUpdateActivityStatus} />}
       {user.role === "admin" && <AdminDashboard teams={teams} recent={recent} />}
     </div>
   );
@@ -121,9 +186,8 @@ function NavBar({ user, onLogout }) {
 }
 
 // === LOGIN SCREEN
-function LoginScreen({ onLogin }) {
-  const [role, setRole] = useState("aluno");
-  const [name, setName] = useState("");
+function LoginScreen({ onLogin, onShowRegister }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
@@ -218,32 +282,11 @@ function LoginScreen({ onLogin }) {
           transition={{ duration: 0.6, delay: 0.8 }}
           style={{ display: "flex", flexDirection: "column", gap: "20px" }}
         >
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            style={{
-              padding: "15px 20px",
-              borderRadius: "12px",
-              border: "2px solid #e1e5e9",
-              fontSize: "16px",
-              fontFamily: "'Montserrat', sans-serif",
-              backgroundColor: "#ffffff",
-              color: "#333",
-              outline: "none",
-              transition: "border-color 0.3s ease",
-            }}
-            onFocus={(e) => e.target.style.borderColor = "#006400"}
-            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
-          >
-            <option value="aluno">Aluno</option>
-            <option value="mentor">Mentor</option>
-            <option value="admin">Administrador</option>
-          </select>
-
           <input
-            placeholder="Nome da equipe ou usuário"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             style={{
               padding: "15px 20px",
               borderRadius: "12px",
@@ -291,11 +334,298 @@ function LoginScreen({ onLogin }) {
               boxShadow: "0 5px 15px rgba(0, 100, 0, 0.2)",
               transition: "all 0.3s ease",
             }}
-            onClick={() => onLogin(role, name, password)}
+            onClick={() => onLogin(email, password)}
           >
             Entrar no Sistema
           </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              background: "transparent",
+              color: "#006400",
+              border: "2px solid #006400",
+              padding: "12px 20px",
+              borderRadius: "12px",
+              fontSize: "16px",
+              cursor: "pointer",
+              fontWeight: "700",
+              transition: "all 0.3s ease",
+            }}
+            onClick={onShowRegister}
+          >
+            Criar Conta
+          </motion.button>
         </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// === REGISTER SCREEN
+function RegisterScreen({ onRegister, onBackToLogin }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "aluno",
+    teamId: 1
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      alert("As senhas não coincidem!");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      alert("A senha deve ter pelo menos 6 caracteres!");
+      return;
+    }
+
+    const { confirmPassword, ...userData } = formData;
+    onRegister(userData);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        backgroundColor: "#f8f9fa",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "20px",
+          boxShadow: "0 20px 40px rgba(0, 100, 0, 0.1)",
+          padding: "60px 50px",
+          maxWidth: "560px",
+          width: "100%",
+          textAlign: "center",
+        }}
+      >
+        {/* Logos Section */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "40px",
+            marginBottom: "40px",
+          }}
+        >
+          <img
+            src="/logos/liderancas-empaticas.png"
+            alt="Lideranças Empáticas"
+            style={{ width: 140, height: 140, objectFit: "contain", display: "block" }}
+          />
+          <img
+            src="/logos/logo fecap.webp"
+            alt="FECAP"
+            style={{ width: 140, height: 140, objectFit: "contain", display: "block" }}
+          />
+        </motion.div>
+
+        {/* Title */}
+        <motion.h1
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          style={{
+            color: "#006400",
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: "700",
+            fontSize: "28px",
+            marginBottom: "10px",
+            margin: "0 0 10px 0",
+          }}
+        >
+          Criar Conta
+        </motion.h1>
+
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          style={{
+            color: "#666",
+            fontSize: "16px",
+            marginBottom: "40px",
+            margin: "0 0 40px 0",
+          }}
+        >
+          Cadastre-se na plataforma
+        </motion.p>
+
+        {/* Form */}
+        <motion.form
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+          onSubmit={handleSubmit}
+        >
+          <input
+            placeholder="Nome completo"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          />
+
+          <select
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          >
+            <option value="aluno">Aluno</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Administrador</option>
+          </select>
+
+          <input
+            type="password"
+            placeholder="Senha"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            required
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          />
+
+          <input
+            type="password"
+            placeholder="Confirmar senha"
+            value={formData.confirmPassword}
+            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+            required
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          />
+
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(0, 100, 0, 0.3)" }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              ...btnStyle,
+              padding: "18px 30px",
+              fontSize: "18px",
+              borderRadius: "12px",
+              marginTop: "10px",
+              boxShadow: "0 5px 15px rgba(0, 100, 0, 0.2)",
+              transition: "all 0.3s ease",
+            }}
+          >
+            Criar Conta
+          </motion.button>
+
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              background: "transparent",
+              color: "#006400",
+              border: "2px solid #006400",
+              padding: "12px 20px",
+              borderRadius: "12px",
+              fontSize: "16px",
+              cursor: "pointer",
+              fontWeight: "700",
+              transition: "all 0.3s ease",
+            }}
+            onClick={onBackToLogin}
+          >
+            Voltar ao Login
+          </motion.button>
+        </motion.form>
       </motion.div>
     </motion.div>
   );
@@ -360,8 +690,8 @@ function MentorDashboard({ user, teams, pending, updateActivityStatus }) {
           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 12, border: "1px solid #e9ecef", borderRadius: 8, marginBottom: 8 }}>
             <div><b>{p.teamName}</b> - {p.nome} ({p.data})</div>
             <div style={{ display: "flex", gap: 8 }}>
-              <button style={smallBtn} onClick={() => updateActivityStatus(p.teamId, 0, "Aprovada")}>Aprovar</button>
-              <button style={{ ...smallBtn, background: "#dc3545" }} onClick={() => updateActivityStatus(p.teamId, 0, "Rejeitada", "Dados insuficientes")}>Rejeitar</button>
+              <button style={smallBtn} onClick={() => updateActivityStatus(p.id, "Aprovada")}>Aprovar</button>
+              <button style={{ ...smallBtn, background: "#dc3545" }} onClick={() => updateActivityStatus(p.id, "Rejeitada", "Dados insuficientes")}>Rejeitar</button>
             </div>
           </div>
         ))}
