@@ -133,36 +133,240 @@ function LoginScreen({ onLogin }) {
       style={{
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: "#ffffff",
-        color: "#006400",
-        fontFamily: "'Montserrat', sans-serif",
-        fontWeight: "700",
+        backgroundColor: "#f8f9fa",
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        gap: "20px",
-        textAlign: "center",
+        padding: "20px",
       }}
     >
-      <motion.h1 initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
-        Plataforma de Gestão
-      </motion.h1>
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="aluno">Aluno</option>
-        <option value="mentor">Mentor</option>
-        <option value="admin">Administrador</option>
-      </select>
-      <input placeholder="Nome da equipe ou usuário" value={name} onChange={(e) => setName(e.target.value)} />
-      <input type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        style={btnStyle}
-        onClick={() => onLogin(role, name, password)}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "20px",
+          boxShadow: "0 20px 40px rgba(0, 100, 0, 0.1)",
+          padding: "60px 50px",
+          maxWidth: "500px",
+          width: "100%",
+          textAlign: "center",
+        }}
       >
-        Entrar
-      </motion.button>
+        {/* Logos Section */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "30px",
+            marginBottom: "40px",
+          }}
+        >
+          {/* Logo 1 - Lideranças Empáticas */}
+          <div style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+            backgroundColor: "#006400",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            border: "3px solid #e8f5e8",
+          }}>
+            <div style={{
+              position: "absolute",
+              top: "-15px",
+              left: "-15px",
+              right: "-15px",
+              bottom: "-15px",
+              borderRadius: "50%",
+              border: "2px dashed #006400",
+              opacity: 0.3,
+            }} />
+            <div style={{
+              color: "#ffffff",
+              fontSize: "10px",
+              fontWeight: "700",
+              textAlign: "center",
+              lineHeight: "1.2",
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              right: "10px",
+            }}>
+              LIDERANÇAS EMPÁTICAS
+            </div>
+            <div style={{
+              color: "#ffffff",
+              fontSize: "24px",
+              marginTop: "20px",
+            }}>
+              👥
+            </div>
+            <div style={{
+              color: "#ffffff",
+              fontSize: "12px",
+              fontWeight: "700",
+              marginTop: "5px",
+            }}>
+              FECAP
+            </div>
+          </div>
+
+          {/* Logo 2 - Profile with Wing */}
+          <div style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+            backgroundColor: "#006400",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            border: "3px solid #e8f5e8",
+          }}>
+            <div style={{
+              color: "#ffffff",
+              fontSize: "40px",
+              marginBottom: "10px",
+            }}>
+              👤
+            </div>
+            <div style={{
+              color: "#ffffff",
+              fontSize: "12px",
+              fontWeight: "700",
+            }}>
+              FECAP
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Title */}
+        <motion.h1
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          style={{
+            color: "#006400",
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: "700",
+            fontSize: "28px",
+            marginBottom: "10px",
+            margin: "0 0 10px 0",
+          }}
+        >
+          Plataforma de Gestão
+        </motion.h1>
+
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          style={{
+            color: "#666",
+            fontSize: "16px",
+            marginBottom: "40px",
+            margin: "0 0 40px 0",
+          }}
+        >
+          Sistema de Gestão de Lideranças Empáticas
+        </motion.p>
+
+        {/* Form */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+        >
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          >
+            <option value="aluno">Aluno</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Administrador</option>
+          </select>
+
+          <input
+            placeholder="Nome da equipe ou usuário"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          />
+
+          <input
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              padding: "15px 20px",
+              borderRadius: "12px",
+              border: "2px solid #e1e5e9",
+              fontSize: "16px",
+              fontFamily: "'Montserrat', sans-serif",
+              backgroundColor: "#ffffff",
+              color: "#333",
+              outline: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#006400"}
+            onBlur={(e) => e.target.style.borderColor = "#e1e5e9"}
+          />
+
+          <motion.button
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(0, 100, 0, 0.3)" }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              ...btnStyle,
+              padding: "18px 30px",
+              fontSize: "18px",
+              borderRadius: "12px",
+              marginTop: "10px",
+              boxShadow: "0 5px 15px rgba(0, 100, 0, 0.2)",
+              transition: "all 0.3s ease",
+            }}
+            onClick={() => onLogin(role, name, password)}
+          >
+            Entrar no Sistema
+          </motion.button>
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 }
