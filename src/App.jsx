@@ -21,6 +21,10 @@ const formatNumberBR = (value, minFractionDigits = 0) =>
 
 const formatCurrencyBRL = (value) => `R$ ${formatNumberBR(value, 2)}`;
 
+// Remove emojis and pictographs from strings (defensive rendering/sanitization)
+const stripEmojis = (text) =>
+  String(text).replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "");
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [teams, setTeams] = useState([]);
@@ -167,7 +171,7 @@ function NavBar({ user, onLogout }) {
     >
       <span>Gestão de Lideranças</span>
       <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-        <span style={{ opacity: 0.95 }}>{user.role.toUpperCase()} - {user.name}</span>
+        <span style={{ opacity: 0.95 }}>{user.role.toUpperCase()} - {stripEmojis(user.name)}</span>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}
@@ -642,7 +646,7 @@ function AlunoDashboard({ user, teams, onRegister }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ maxWidth: 1200, margin: "0 auto", padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
       <SectionCard>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ margin: 0, color: "#0f5132" }}>{team.name} - {user.name}</h2>
+          <h2 style={{ margin: 0, color: "#0f5132" }}>{stripEmojis(team.name)} - {stripEmojis(user.name)}</h2>
           <div style={{ color: "#0f5132", fontWeight: 800 }}>Total: {formatCurrencyBRL(team.total)}</div>
         </div>
       </SectionCard>
@@ -666,7 +670,7 @@ function AlunoDashboard({ user, teams, onRegister }) {
             {team.activities.map((a, i) => (
               <tr key={i} style={{ borderTop: "1px solid #e9ecef" }}>
                 <td style={{ padding: 8 }}>{a.data}</td>
-                <td style={{ padding: 8 }}>{a.nome}</td>
+                <td style={{ padding: 8 }}>{stripEmojis(a.nome)}</td>
                 <td style={{ padding: 8 }}>{a.tipo === "alimentos" ? `${a.valor} kg` : formatCurrencyBRL(a.valor)}</td>
                 <td style={{ padding: 8 }}>{a.status}</td>
               </tr>
@@ -707,7 +711,7 @@ function MentorDashboard({ user, teams, pending, updateActivityStatus }) {
           <thead><tr style={{ textAlign: "left", color: "#495057" }}><th style={{ padding: 8 }}>Equipe</th><th style={{ padding: 8 }}>Total</th></tr></thead>
           <tbody>
             {myTeams.map((t) => (
-              <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}><td style={{ padding: 8 }}>{t.name}</td><td style={{ padding: 8 }}>{formatCurrencyBRL(t.total)}</td></tr>
+              <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}><td style={{ padding: 8 }}>{stripEmojis(t.name)}</td><td style={{ padding: 8 }}>{formatCurrencyBRL(t.total)}</td></tr>
             ))}
           </tbody>
         </table>
@@ -801,8 +805,8 @@ function AdminDashboard({ teams, recent }) {
             {teams.slice().sort((a, b) => b.total - a.total).map((t, i) => (
               <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}>
                 <td style={{ padding: 8 }}>{i + 1}</td>
-                <td style={{ padding: 8 }}>{t.name}</td>
-                <td style={{ padding: 8 }}>{t.mentor}</td>
+                <td style={{ padding: 8 }}>{stripEmojis(t.name)}</td>
+                <td style={{ padding: 8 }}>{stripEmojis(t.mentor)}</td>
                 <td style={{ padding: 8 }}>{formatCurrencyBRL(t.total)}</td>
               </tr>
             ))}
