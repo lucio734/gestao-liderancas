@@ -5,7 +5,6 @@ import {
 } from "recharts";
 import {
   initializeDatabase,
-  getAllUsers,
   getAllTeams,
   getPendingActivities,
   getRecentActivities,
@@ -13,9 +12,14 @@ import {
   createUser,
   createActivity,
   updateActivityStatus,
-  getTeamStats,
-  getGlobalStats
+  
 } from "./database";
+
+// === HELPERS ===
+const formatNumberBR = (value, minFractionDigits = 0) =>
+  Number(value).toLocaleString("pt-BR", { minimumFractionDigits: minFractionDigits });
+
+const formatCurrencyBRL = (value) => `R$ ${formatNumberBR(value, 2)}`;
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -161,7 +165,7 @@ function NavBar({ user, onLogout }) {
         boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
       }}
     >
-      <span>🌱 Gestão de Lideranças</span>
+      <span>Gestão de Lideranças</span>
       <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
         <span style={{ opacity: 0.95 }}>{user.role.toUpperCase()} - {user.name}</span>
         <motion.button
@@ -639,7 +643,7 @@ function AlunoDashboard({ user, teams, onRegister }) {
       <SectionCard>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ margin: 0, color: "#0f5132" }}>{team.name} - {user.name}</h2>
-          <div style={{ color: "#0f5132", fontWeight: 800 }}>Total: R$ {team.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
+          <div style={{ color: "#0f5132", fontWeight: 800 }}>Total: {formatCurrencyBRL(team.total)}</div>
         </div>
       </SectionCard>
 
@@ -663,7 +667,7 @@ function AlunoDashboard({ user, teams, onRegister }) {
               <tr key={i} style={{ borderTop: "1px solid #e9ecef" }}>
                 <td style={{ padding: 8 }}>{a.data}</td>
                 <td style={{ padding: 8 }}>{a.nome}</td>
-                <td style={{ padding: 8 }}>{a.tipo === "alimentos" ? `${a.valor} kg` : `R$ ${a.valor}`}</td>
+                <td style={{ padding: 8 }}>{a.tipo === "alimentos" ? `${a.valor} kg` : formatCurrencyBRL(a.valor)}</td>
                 <td style={{ padding: 8 }}>{a.status}</td>
               </tr>
             ))}
@@ -703,7 +707,7 @@ function MentorDashboard({ user, teams, pending, updateActivityStatus }) {
           <thead><tr style={{ textAlign: "left", color: "#495057" }}><th style={{ padding: 8 }}>Equipe</th><th style={{ padding: 8 }}>Total</th></tr></thead>
           <tbody>
             {myTeams.map((t) => (
-              <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}><td style={{ padding: 8 }}>{t.name}</td><td style={{ padding: 8 }}>R$ {t.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td></tr>
+              <tr key={t.id} style={{ borderTop: "1px solid #e9ecef" }}><td style={{ padding: 8 }}>{t.name}</td><td style={{ padding: 8 }}>{formatCurrencyBRL(t.total)}</td></tr>
             ))}
           </tbody>
         </table>
@@ -742,9 +746,9 @@ function AdminDashboard({ teams, recent }) {
 
       {/* KPI Row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-        <KpiCard title="Arrecadação Total em Kg" value={total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} selectorLabel="Edição" />
-        <KpiCard title="Arrecadação Média | Edição" value={(total / Math.max(teams.length, 1)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} selectorLabel="Semestre" />
-        <KpiCard title="Pessoas Atendidas | 6 Meses" value={(1300).toLocaleString("pt-BR")} selectorLabel="Selecionar período" rightLogo="/logos/logo fecap.webp" />
+        <KpiCard title="Arrecadação Total em Kg" value={formatNumberBR(total, 2)} selectorLabel="Edição" />
+        <KpiCard title="Arrecadação Média | Edição" value={formatNumberBR(total / Math.max(teams.length, 1), 2)} selectorLabel="Semestre" />
+        <KpiCard title="Pessoas Atendidas | 6 Meses" value={formatNumberBR(1300)} selectorLabel="Selecionar período" rightLogo="/logos/logo fecap.webp" />
       </div>
 
       {/* Charts Grid */}
@@ -799,7 +803,7 @@ function AdminDashboard({ teams, recent }) {
                 <td style={{ padding: 8 }}>{i + 1}</td>
                 <td style={{ padding: 8 }}>{t.name}</td>
                 <td style={{ padding: 8 }}>{t.mentor}</td>
-                <td style={{ padding: 8 }}>R$ {t.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                <td style={{ padding: 8 }}>{formatCurrencyBRL(t.total)}</td>
               </tr>
             ))}
           </tbody>
